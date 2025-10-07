@@ -202,12 +202,15 @@ export default function TablePreview(props: TablePreviewProps) {
         )}
         <TableBody>
           {body.map((r, ri) => (
-            <TableRow key={ri}>
+            <TableRow key={ri} className="even:bg-gray-50">
               {r.map((c, ci) => (
-                <TableCell key={ci}>
+                <TableCell
+                  key={ci}
+                  className="whitespace-pre-wrap border border-x-gray-100 p-1"
+                >
                   {editable ? (
                     <input
-                      className="w-full bg-transparent outline-none border border-transparent focus:border-gray-300 rounded px-1 py-0.5"
+                      className="w-full bg-transparent hover:border-gray-200 outline-none border border-transparent focus:border-gray-300 rounded px-1 py-0.5"
                       value={c ?? ""}
                       onChange={(e) =>
                         handleChange(

@@ -223,11 +223,17 @@ function uid(prefix = "") {
     .slice(-4)}`;
 }
 
-function makeDomNode({ tag, classes = [], attributes = [], text = false }) {
+function makeDomNode({
+  tag,
+  type = "DOM",
+  classes = [],
+  attributes = [],
+  text = false,
+}) {
   const id = uid("n_");
   return {
     _id: id,
-    type: "DOM",
+    type: type,
     tag: "div",
     classes,
     children: [],
@@ -703,17 +709,30 @@ export default function WebflowTableJsonBuilder() {
 
     if (wrapInSection) {
       const outer = push(
-        makeDomNode({ tag: "div", classes: classIds(["section_table"]) })
+        makeDomNode({
+          tag: "div",
+          type: "div",
+          classes: classIds(["section_table"]),
+        })
       );
       const padGlobal = push(
-        makeDomNode({ tag: "div", classes: classIds(["padding-global"]) })
+        makeDomNode({
+          tag: "div",
+          type: "div",
+          classes: classIds(["padding-global"]),
+        })
       );
       const container = push(
-        makeDomNode({ tag: "div", classes: classIds(["container-large"]) })
+        makeDomNode({
+          tag: "div",
+          type: "div",
+          classes: classIds(["container-large"]),
+        })
       );
       const padSection = push(
         makeDomNode({
           tag: "div",
+          type: "div",
           classes: classIds(["padding-section-medium"]),
         })
       );
@@ -803,7 +822,22 @@ export default function WebflowTableJsonBuilder() {
           <h1 className="text-2xl font-semibold">Webflow Table JSON Builder</h1>
           <CopyButton />
         </header>
-
+      </div>
+      <section className="my-6 max-w-5xl mx-auto">
+        <Card className="space-y-4 p-4 bg-white rounded-2xl shadow-sm break-inside-avoid">
+          <CardTitle className="text-lg font-medium">Table Output</CardTitle>
+          <TablePreview
+            json={built.json}
+            editable
+            hasHeader={csvHasHeaderRow}
+            onEdit={(rows) => {
+              setCsvData(rows);
+              setCsvText(stringifyCSV(rows));
+            }}
+          />
+        </Card>
+      </section>
+      <div className="max-w-5xl mx-auto grid gap-6">
         <main className="columns-1 md:columns-2 gap-6">
           <section className="grid gap-6">
             <Card className="space-y-4 p-4 bg-white rounded-2xl shadow-sm break-inside-avoid">
@@ -1200,20 +1234,6 @@ export default function WebflowTableJsonBuilder() {
           </section>
         </main>
       </div>
-      <section className="mt-6 max-w-5xl mx-auto">
-        <Card className="space-y-4 p-4 bg-white rounded-2xl shadow-sm break-inside-avoid">
-          <CardTitle className="text-lg font-medium">JSON Output</CardTitle>
-          <TablePreview
-            json={built.json}
-            editable
-            hasHeader={csvHasHeaderRow}
-            onEdit={(rows) => {
-              setCsvData(rows);
-              setCsvText(stringifyCSV(rows));
-            }}
-          />
-        </Card>
-      </section>
     </div>
   );
 }
