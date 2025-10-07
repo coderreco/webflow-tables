@@ -21,6 +21,7 @@ import {
 } from "./components/ui/tooltip";
 import { InfoIcon } from "lucide-react";
 import TablePreview from "./components/table-preview";
+import WebflowIcon from "./components/webflow-icon";
 
 // --- Tree preview components -------------------------------------------------
 // --- Tree preview components -------------------------------------------------
@@ -786,21 +787,46 @@ export default function WebflowTableJsonBuilder() {
     setTimeout(() => setStatus(""), 3000);
   };
 
+  const CopyButton = () => (
+    <Button onClick={handleCopy}>
+      Copy for{" "}
+      <span className="inline-block w-4 h-4">
+        <WebflowIcon />
+      </span>
+    </Button>
+  );
+
   return (
     <div className="min-h-screen w-full bg-gray-50 text-gray-900 p-6">
       <div className="max-w-5xl mx-auto grid gap-6">
         <header className="flex items-center justify-between gap-3 flex-wrap">
           <h1 className="text-2xl font-semibold">Webflow Table JSON Builder</h1>
-          <Button
-            onClick={handleCopy}
-            className="px-4 py-2 rounded-2xl bg-black text-white shadow hover:opacity-90"
-          >
-            Copy as application/json
-          </Button>
+          <CopyButton />
         </header>
 
         <main className="columns-1 md:columns-2 gap-6">
           <section className="grid gap-6">
+            <Card className="space-y-4 p-4 bg-white rounded-2xl shadow-sm break-inside-avoid">
+              <CardTitle className="text-lg font-medium">How to use</CardTitle>
+              <ol className="list-decimal ml-5 space-y-1 mt-2 text-sm text-gray-700">
+                <li>
+                  Upload or paste your CSV. Optionally mark first row as header.
+                </li>
+                <li>
+                  Toggle the <Kbd>span</Kbd> fallback if your project ignores
+                  raw text nodes.
+                </li>
+                <li>
+                  Click <em>Copy as application/json</em> and paste into Webflow
+                </li>
+                <li>Edit styles/classes in Webflow as needed.</li>
+              </ol>
+              <p className="text-xs text-gray-500">
+                Tip: For accessibility, keep header cells in{" "}
+                <Kbd>&lt;thead&gt;</Kbd> as <Kbd>&lt;th&gt;</Kbd>. This builder
+                will use <Kbd>th</Kbd> when the head is included.
+              </p>
+            </Card>
             <Card className="space-y-4 p-4 bg-white rounded-2xl shadow-sm break-inside-avoid">
               <CardTitle className="text-lg font-medium">Structure</CardTitle>
               <FieldGroup className="grid grid-cols-2 gap-3">
@@ -813,6 +839,12 @@ export default function WebflowTableJsonBuilder() {
                     min={1}
                     max={50}
                     value={cols}
+                    disabled={!!csvData}
+                    title={
+                      csvData
+                        ? "Columns are determined by the CSV data"
+                        : undefined
+                    }
                     onChange={(e) =>
                       setCols(parseInt(e.target.value || "1", 10))
                     }
@@ -828,6 +860,12 @@ export default function WebflowTableJsonBuilder() {
                     min={0}
                     max={500}
                     value={rows}
+                    disabled={!!csvData}
+                    title={
+                      csvData
+                        ? "Rows are determined by the CSV data"
+                        : undefined
+                    }
                     onChange={(e) =>
                       setRows(parseInt(e.target.value || "0", 10))
                     }
@@ -945,87 +983,9 @@ export default function WebflowTableJsonBuilder() {
                 </div>
               </div>
             </Card>
-
-            <Card className="space-y-4 p-4 bg-white rounded-2xl shadow-sm break-inside-avoid">
-              <CardTitle className="text-lg font-medium">CSV import</CardTitle>
-              <div className="flex items-center gap-3 flex-wrap">
-                <Input
-                  type="file"
-                  accept=".csv,text/csv"
-                  onChange={(e) => {
-                    const file = e.target?.files && e.target.files[0];
-                    if (file) handleCsvFile(file);
-                  }}
-                />
-                <Field orientation={"horizontal"}>
-                  <Switch
-                    checked={csvHasHeaderRow}
-                    onCheckedChange={setCsvHasHeaderRow}
-                  />{" "}
-                  <FieldLabel>First row is header</FieldLabel>
-                </Field>
-                <Field orientation={"horizontal"}>
-                  <Switch
-                    checked={useSpanFallback}
-                    onCheckedChange={setUseSpanFallback}
-                  />{" "}
-                  <FieldLabel>
-                    Use <Kbd>span</Kbd> text fallback
-                  </FieldLabel>
-                </Field>
-              </div>
-              <Textarea
-                placeholder="…or paste CSV here"
-                value={csvText}
-                onChange={(e) => setCsvText(e.target.value)}
-                className="w-full h-40 font-mono text-xs p-3 rounded-xl border"
-              />
-              <ButtonGroup>
-                <Button onClick={handleCsvTextPaste} variant="outline">
-                  Parse pasted CSV
-                </Button>
-                <Button
-                  onClick={() => {
-                    setCsvText("");
-                    setCsvData(null);
-                  }}
-                  variant="outline"
-                >
-                  Clear CSV
-                </Button>
-              </ButtonGroup>
-              {csvData && (
-                <div className="text-xs text-gray-600">
-                  Loaded CSV: {csvData.length} rows ×{" "}
-                  {Math.max(...csvData.map((r) => r.length))} cols
-                </div>
-              )}
-            </Card>
           </section>
 
           <section className="grid gap-6">
-            <Card className="space-y-4 p-4 bg-white rounded-2xl shadow-sm break-inside-avoid">
-              <CardTitle className="text-lg font-medium">How to use</CardTitle>
-              <ol className="list-decimal ml-5 space-y-1 mt-2 text-sm text-gray-700">
-                <li>
-                  Upload or paste your CSV. Optionally mark first row as header.
-                </li>
-                <li>
-                  Toggle the <Kbd>span</Kbd> fallback if your project ignores
-                  raw text nodes.
-                </li>
-                <li>
-                  Click <em>Copy as application/json</em> and paste into Webflow{" "}
-                  <em>Custom Element</em>.
-                </li>
-                <li>Edit styles/classes in Webflow as needed.</li>
-              </ol>
-              <p className="text-xs text-gray-500">
-                Tip: For accessibility, keep header cells in{" "}
-                <Kbd>&lt;thead&gt;</Kbd> as <Kbd>&lt;th&gt;</Kbd>. This builder
-                will use <Kbd>th</Kbd> when the head is included.
-              </p>
-            </Card>
             <Card className="space-y-4 p-4 bg-white rounded-2xl shadow-sm break-inside-avoid">
               <CardTitle className="text-lg font-medium">Output</CardTitle>
               <p className="text-sm text-gray-600">
@@ -1156,13 +1116,86 @@ export default function WebflowTableJsonBuilder() {
                   })()}
                 </div>
               </div>
-              <Button
-                onClick={handleCopy}
-                className="px-4 py-2 rounded-2xl bg-black text-white shadow hover:opacity-90"
-              >
-                Copy Table Tree
-              </Button>
+              <CopyButton />
               {status && <p className="text-sm text-green-700">{status}</p>}
+            </Card>
+            <Card className="p-4 bg-white rounded-2xl shadow-sm break-inside-avoid">
+              <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
+                <CardTitle className="text-lg font-medium">
+                  CSV import
+                </CardTitle>
+                <div className="flex items-center gap-3 flex-wrap">
+                  <Field className="flex items-center justify-start gap-2">
+                    <FieldLabel>Upload CSV</FieldLabel>
+                    <ButtonGroup>
+                      <Input
+                        type="file"
+                        accept=".csv,text/csv"
+                        className="cursor-pointer"
+                        onChange={(e) => {
+                          const file = e.target?.files && e.target.files[0];
+                          if (file) handleCsvFile(file);
+                        }}
+                      />
+                      <Button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.target.form.reset();
+                          setCsvData(null);
+                        }}
+                        disabled={!csvData}
+                        variant="outline"
+                      >
+                        Clear File
+                      </Button>
+                    </ButtonGroup>
+                  </Field>
+                  <Field orientation={"horizontal"}>
+                    <Switch
+                      checked={csvHasHeaderRow}
+                      onCheckedChange={setCsvHasHeaderRow}
+                    />{" "}
+                    <FieldLabel>First row is header</FieldLabel>
+                  </Field>
+                  <Field orientation={"horizontal"}>
+                    <Switch
+                      checked={useSpanFallback}
+                      onCheckedChange={setUseSpanFallback}
+                    />{" "}
+                    <FieldLabel>
+                      Use <Kbd>span</Kbd> text fallback
+                    </FieldLabel>
+                  </Field>
+                </div>
+                <Textarea
+                  placeholder="…or paste CSV here"
+                  value={csvText}
+                  onChange={(e) => setCsvText(e.target.value)}
+                  className="w-full h-40 font-mono text-xs p-3 rounded-xl border"
+                />
+                <ButtonGroup>
+                  <Button onClick={handleCsvTextPaste} variant="outline">
+                    Parse pasted CSV
+                  </Button>
+                  <Button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setCsvText("");
+                      setCsvData(null);
+                      e.target.form.reset();
+                    }}
+                    variant="outline"
+                  >
+                    Clear CSV
+                  </Button>
+                </ButtonGroup>
+                {csvData && (
+                  <div className="text-xs text-gray-600">
+                    Loaded CSV: {csvData.length} rows ×{" "}
+                    {Math.max(...csvData.map((r) => r.length))} cols
+                  </div>
+                )}
+              </form>
             </Card>
           </section>
         </main>
